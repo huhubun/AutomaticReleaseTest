@@ -34,15 +34,15 @@ jobs:
 
       - name: Publish for Windows
         if: startsWith(matrix.os, 'windows-')
-        run: dotnet publish -f ${{ env.NET_CORE_VERSION }} -o ./myapp_windows --nologo --github_ref ${{ github.ref }} --github_event_name ${{ github.event_name }} --github_job_id ${{ github.job }}
+        run: dotnet publish -f ${{ env.NET_CORE_VERSION }} -o ./myapp_windows --nologo --github_ref ${{ github.ref }} --github_event_name ${{ github.event_name }} --github_job_id ${{ github.job }} --github_sha ${{ github.sha }}
 
       - name: Publish for Linux
         if: startsWith(matrix.os, 'ubuntu-')
-        run: dotnet publish -f ${{ env.NET_CORE_VERSION }} -o ./myapp_linux --nologo --github_ref ${{ github.ref }} --github_event_name ${{ github.event_name }} --github_job_id ${{ github.job }}
+        run: dotnet publish -f ${{ env.NET_CORE_VERSION }} -o ./myapp_linux --nologo --github_ref ${{ github.ref }} --github_event_name ${{ github.event_name }} --github_job_id ${{ github.job }} --github_sha ${{ github.sha }}
 
       - name: Publish for macOS
         if: startsWith(matrix.os, 'macos-')
-        run: dotnet publish -f ${{ env.NET_CORE_VERSION }} -o ./myapp_macos --nologo --github_ref ${{ github.ref }} --github_event_name ${{ github.event_name }} --github_job_id ${{ github.job }}
+        run: dotnet publish -f ${{ env.NET_CORE_VERSION }} -o ./myapp_macos --nologo --github_ref ${{ github.ref }} --github_event_name ${{ github.event_name }} --github_job_id ${{ github.job }} --github_sha ${{ github.sha }}
 
       - name: Package for Windows
         if: startsWith(matrix.os, 'windows-')
