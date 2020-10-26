@@ -23,7 +23,7 @@ jobs:
 
       - name: Get application version
         run: |
-                if(${{ github.ref }} -match "${{ REGEX_REF_VERSION }}")
+                if(${{ github.ref }} -match "${{ env.REGEX_REF_VERSION }}")
                 {
                     echo "Find version information in `github.ref` ${{ github.ref }}"
                 }
@@ -31,8 +31,8 @@ jobs:
                 {
                     echo "The version information is not found in github.ref, try to get it from the `.csproj` file."
 
-                    $versionXmlInCsproj = Select-String -Path ".\src\MyConsoleApp\MyConsoleApp.csproj" -Pattern "${{ REGEX_VERSION_XML }}" -Raw
-                    if($versionXmlInCsproj -match "${{ REGEX_VERSION_XML }}")
+                    $versionXmlInCsproj = Select-String -Path ".\src\MyConsoleApp\MyConsoleApp.csproj" -Pattern "${{ env.REGEX_VERSION_XML }}" -Raw
+                    if($versionXmlInCsproj -match "${{ env.REGEX_VERSION_XML }}")
                     {
                         echo "Find version information in .csproj file"
                     }
@@ -63,47 +63,47 @@ jobs:
 
       - name: Publish for Windows
         if: startsWith(matrix.os, 'windows-')
-        run: dotnet publish -f ${{ env.NET_CORE_VERSION }} -o ./myapp_windows --nologo /p:VersionPrefix=${{ APPLICATION_VERSION }}
+        run: dotnet publish -f ${{ env.NET_CORE_VERSION }} -o ./myapp_windows --nologo /p:VersionPrefix=${{ env.APPLICATION_VERSION }}
 
       - name: Publish for Linux
         if: startsWith(matrix.os, 'ubuntu-')
-        run: dotnet publish -f ${{ env.NET_CORE_VERSION }} -o ./myapp_linux --nologo /p:VersionPrefix=${{ APPLICATION_VERSION }}
+        run: dotnet publish -f ${{ env.NET_CORE_VERSION }} -o ./myapp_linux --nologo /p:VersionPrefix=${{ env.APPLICATION_VERSION }}
 
       - name: Publish for macOS
         if: startsWith(matrix.os, 'macos-')
-        run: dotnet publish -f ${{ env.NET_CORE_VERSION }} -o ./myapp_macos --nologo /p:VersionPrefix=${{ APPLICATION_VERSION }}
+        run: dotnet publish -f ${{ env.NET_CORE_VERSION }} -o ./myapp_macos --nologo /p:VersionPrefix=${{ env.APPLICATION_VERSION }}
 
       - name: Package for Windows
         if: startsWith(matrix.os, 'windows-')
-        run: Compress-Archive -Path .\myapp_windows 'myapp_${{ APPLICATION_VERSION }}_windows.zip'
+        run: Compress-Archive -Path .\myapp_windows 'myapp_${{ env.APPLICATION_VERSION }}_windows.zip'
 
       - name: Package for Linux
         if: startsWith(matrix.os, 'ubuntu-')
-        run: tar caf myapp_linux.tar.gz myapp_${{ APPLICATION_VERSION }}_linux
+        run: tar caf myapp_linux.tar.gz myapp_${{ env.APPLICATION_VERSION }}_linux
 
       - name: Package for macOS
         if: startsWith(matrix.os, 'macos-')
-        run: tar caf myapp_macos.tar.gz myapp_${{ APPLICATION_VERSION }}_macos
+        run: tar caf myapp_macos.tar.gz myapp_${{ env.APPLICATION_VERSION }}_macos
 
       - name: Upload MyApplication for Windows
         if: startsWith(matrix.os, 'windows-')
         uses: actions/upload-artifact@v2
         with:
-          name: myapp_${{ APPLICATION_VERSION }}_windows
+          name: myapp_${{ env.APPLICATION_VERSION }}_windows
           path: ./myapp_windows.zip
 
       - name: Upload MyApplication for Linux
         if: startsWith(matrix.os, 'ubuntu-')
         uses: actions/upload-artifact@v2
         with:
-          name: myapp_${{ APPLICATION_VERSION }}_linux
+          name: myapp_${{ env.APPLICATION_VERSION }}_linux
           path: ./myapp_linux.tar.gz
 
       - name: Upload MyApplication for macOS
         if: startsWith(matrix.os, 'macos-')
         uses: actions/upload-artifact@v2
         with:
-          name: myapp_${{ APPLICATION_VERSION }}_macos
+          name: myapp_${{ env.APPLICATION_VERSION }}_macos
           path: ./myapp_macos.tar.gz
 
 
