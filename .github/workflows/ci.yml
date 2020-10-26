@@ -15,6 +15,9 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
+      - name: Output something
+        run: echo "github_ref ${{ github.ref }} | github_event_name ${{ github.event_name }} | github_job_id ${{ github.job }} | github_sha ${{ github.sha }} | runner_os ${{ runner.os }}"
+
       - name: Checkout code
         uses: actions/checkout@v2
 
@@ -34,15 +37,15 @@ jobs:
 
       - name: Publish for Windows
         if: startsWith(matrix.os, 'windows-')
-        run: dotnet publish -f ${{ env.NET_CORE_VERSION }} -o ./myapp_windows --nologo --github_ref ${{ github.ref }} --github_event_name ${{ github.event_name }} --github_job_id ${{ github.job }} --github_sha ${{ github.sha }}
+        run: dotnet publish -f ${{ env.NET_CORE_VERSION }} -o ./myapp_windows --nologo 
 
       - name: Publish for Linux
         if: startsWith(matrix.os, 'ubuntu-')
-        run: dotnet publish -f ${{ env.NET_CORE_VERSION }} -o ./myapp_linux --nologo --github_ref ${{ github.ref }} --github_event_name ${{ github.event_name }} --github_job_id ${{ github.job }} --github_sha ${{ github.sha }}
+        run: dotnet publish -f ${{ env.NET_CORE_VERSION }} -o ./myapp_linux --nologo
 
       - name: Publish for macOS
         if: startsWith(matrix.os, 'macos-')
-        run: dotnet publish -f ${{ env.NET_CORE_VERSION }} -o ./myapp_macos --nologo --github_ref ${{ github.ref }} --github_event_name ${{ github.event_name }} --github_job_id ${{ github.job }} --github_sha ${{ github.sha }}
+        run: dotnet publish -f ${{ env.NET_CORE_VERSION }} -o ./myapp_macos --nologo
 
       - name: Package for Windows
         if: startsWith(matrix.os, 'windows-')
