@@ -26,26 +26,43 @@ jobs:
       - name: Get application version
         shell: pwsh
         run: |
-                if("${{ github.ref }}" -match "${{ env.REGEX_REF_VERSION }}")
-                {
-                    echo "Find version information in 'github.ref': '${{ github.ref }}'"
-                    echo "IS_PRE_RELEASE=false" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-                } else {
-                    echo "The version information is not found in 'github.ref': '${{ github.ref }}', try to get it from the '.csproj' file."
+          $ref_version, $csproj_version, $application_version
 
-                    $versionXmlInCsproj = Select-String -Path ".\src\MyConsoleApp\MyConsoleApp.csproj" -Pattern "${{ env.REGEX_XML_VERSION }}" -Raw
-                    if($versionXmlInCsproj -match "${{ env.REGEX_XML_VERSION }}")
-                    {
-                        echo "Find version information in '.csproj' file."
-                    }
-                    else
-                    {
-                        throw "No version information was found in 'github.ref' and '.csproj' files."
-                    }
-                }
+          if("${{ github.ref }}" -match "${{ env.REGEX_REF_VERSION }}")
+          {
+              $ref_version = $matches.version
+              $application_version = $ref_version
 
-                echo "IS_PRE_RELEASE=true" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-                echo "APPLICATION_VERSION=$matches.version" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+              echo "Find version information in 'github.ref': '${{ github.ref }}'"
+              echo "IS_PRE_RELEASE=false" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          }
+          else 
+          {
+              echo "The version information is not found in 'github.ref': '${{ github.ref }}', try to get it from the '.csproj' file."
+          }
+
+          $versionXmlInCsproj = Select-String -Path ".\src\MyConsoleApp\MyConsoleApp.csproj" -Pattern "${{ env.REGEX_XML_VERSION }}" -Raw
+          if($versionXmlInCsproj -match "${{ env.REGEX_XML_VERSION }}")
+          {
+              $csproj_version = $matches.version
+              $application_version = $csproj_version
+
+              echo "Find version information in '.csproj' file."
+              echo "IS_PRE_RELEASE=true" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          }
+          else
+          {
+            throw "No version information was found in 'github.ref' and '.csproj' files."
+          }
+
+          if($csproj_version -ne $null && $csproj_version -ne $csproj_version)
+          {
+            throw "The version number in 'github.ref' does not match the one in the '.csproj' file."
+          }
+
+          echo "APPLICATION_VERSION=$application_version" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          
+          Get-Content $env:GITHUB_ENV
 
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1
@@ -63,15 +80,15 @@ jobs:
 
       - name: Publish for Windows
         if: startsWith(matrix.os, 'windows-')
-        run: dotnet publish -f ${{ env.NET_CORE_VERSION }} -o ./myapp_windows --nologo /p:VersionPrefix=${{ env.APPLICATION_VERSION }}
+        run: dotnet publish -f ${{ env.NET_CORE_VERSION }} -o ./myapp_${{ env.APPLICATION_VERSION }}_windows --nologo
 
       - name: Publish for Linux
         if: startsWith(matrix.os, 'ubuntu-')
-        run: dotnet publish -f ${{ env.NET_CORE_VERSION }} -o ./myapp_linux --nologo /p:VersionPrefix=${{ env.APPLICATION_VERSION }}
+        run: dotnet publish -f ${{ env.NET_CORE_VERSION }} -o ./myapp_${{ env.APPLICATION_VERSION }}_linux --nologo
 
       - name: Publish for macOS
         if: startsWith(matrix.os, 'macos-')
-        run: dotnet publish -f ${{ env.NET_CORE_VERSION }} -o ./myapp_macos --nologo /p:VersionPrefix=${{ env.APPLICATION_VERSION }}
+        run: dotnet publish -f ${{ env.NET_CORE_VERSION }} -o ./myapp_${{ env.APPLICATION_VERSION }}_macos --nologo
 
       - name: Package for Windows
         if: startsWith(matrix.os, 'windows-')
@@ -105,5 +122,3 @@ jobs:
         with:
           name: myapp_${{ env.APPLICATION_VERSION }}_macos
           path: ./myapp_macos.tar.gz
-
-
