@@ -55,7 +55,7 @@ jobs:
             throw "No version information was found in 'github.ref' and '.csproj' files."
           }
 
-          if($csproj_version -ne $null && $csproj_version -ne $csproj_version)
+          if($ref_version -ne $null && $csproj_version -ne $null && $csproj_version -ne $csproj_version)
           {
             throw "The version number in 'github.ref' does not match the one in the '.csproj' file."
           }
