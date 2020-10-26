@@ -21,6 +21,9 @@ jobs:
       - name: Output something
         run: echo "github_ref ${{ github.ref }} | github_event_name ${{ github.event_name }} | github_job_id ${{ github.job }} | github_sha ${{ github.sha }} | runner_os ${{ runner.os }}"
 
+      - name: Checkout code
+        uses: actions/checkout@v2
+
       - name: Get application version
         shell: pwsh
         run: |
@@ -42,9 +45,6 @@ jobs:
                 }
 
                 echo $matches.version >> APPLICATION_VERSION
-
-      - name: Checkout code
-        uses: actions/checkout@v2
 
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1
