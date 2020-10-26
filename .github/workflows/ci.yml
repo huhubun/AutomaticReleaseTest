@@ -22,21 +22,22 @@ jobs:
         run: echo "github_ref ${{ github.ref }} | github_event_name ${{ github.event_name }} | github_job_id ${{ github.job }} | github_sha ${{ github.sha }} | runner_os ${{ runner.os }}"
 
       - name: Get application version
+        shell: pwsh
         run: |
                 if("${{ github.ref }}" -match "${{ env.REGEX_REF_VERSION }}")
                 {
-                    echo "Find version information in 'github.ref' ${{ github.ref }}"
+                    echo "Find version information in 'github.ref': '${{ github.ref }}'"
                 } else {
                     echo "The version information is not found in github.ref, try to get it from the '.csproj' file."
 
                     $versionXmlInCsproj = Select-String -Path ".\src\MyConsoleApp\MyConsoleApp.csproj" -Pattern "${{ env.REGEX_XML_VERSION }}" -Raw
                     if($versionXmlInCsproj -match "${{ env.REGEX_XML_VERSION }}")
                     {
-                        echo "Find version information in .csproj file"
+                        echo "Find version information in '.csproj' file."
                     }
                     else
                     {
-                        throw "No version information was found in 'github.ref' and '.csproj' files"
+                        throw "No version information was found in 'github.ref' and '.csproj' files."
                     }
                 }
 
