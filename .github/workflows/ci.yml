@@ -92,15 +92,15 @@ jobs:
 
       - name: Package for Windows
         if: startsWith(matrix.os, 'windows-')
-        run: Compress-Archive -Path .\myapp_windows 'myapp_${{ env.APPLICATION_VERSION }}_windows.zip'
+        run: Compress-Archive -Path .\myapp_${{ env.APPLICATION_VERSION }}_windows 'myapp_${{ env.APPLICATION_VERSION }}_windows.zip'
 
       - name: Package for Linux
         if: startsWith(matrix.os, 'ubuntu-')
-        run: tar caf myapp_linux.tar.gz myapp_${{ env.APPLICATION_VERSION }}_linux
+        run: tar caf myapp_${{ env.APPLICATION_VERSION }}_linux.tar.gz myapp_${{ env.APPLICATION_VERSION }}_linux
 
       - name: Package for macOS
         if: startsWith(matrix.os, 'macos-')
-        run: tar caf myapp_macos.tar.gz myapp_${{ env.APPLICATION_VERSION }}_macos
+        run: tar caf myapp_${{ env.APPLICATION_VERSION }}_macos.tar.gz myapp_${{ env.APPLICATION_VERSION }}_macos
 
       - name: Upload MyApplication for Windows
         if: startsWith(matrix.os, 'windows-')
