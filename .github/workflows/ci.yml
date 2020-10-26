@@ -29,7 +29,7 @@ jobs:
                 if("${{ github.ref }}" -match "${{ env.REGEX_REF_VERSION }}")
                 {
                     echo "Find version information in 'github.ref': '${{ github.ref }}'"
-                    echo "IS_PRE_RELEASE=false" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+                    echo "IS_PRE_RELEASE=false" | Out-File -FilePath ".\GITHUB_ENV" -Encoding utf8 -Append
                 } else {
                     echo "The version information is not found in 'github.ref': '${{ github.ref }}', try to get it from the '.csproj' file."
 
@@ -44,8 +44,8 @@ jobs:
                     }
                 }
 
-                echo "IS_PRE_RELEASE=true" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-                echo "APPLICATION_VERSION=$matches.version" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+                echo "IS_PRE_RELEASE=true" | Out-File -FilePath ".\GITHUB_ENV" -Encoding utf8 -Append
+                echo "APPLICATION_VERSION=$matches.version" | Out-File -FilePath ".\GITHUB_ENV" -Encoding utf8 -Append
 
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1
