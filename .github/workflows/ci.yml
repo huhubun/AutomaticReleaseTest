@@ -3,7 +3,6 @@ name: My-Application-CI
 on: [push]
 
 env:
-  APPLICATION_VERSION: 0
   DOTNET_SDK_VERSION: 3.1
   NET_CORE_VERSION: netcoreapp3.1
   REGEX_REF_VERSION: .*\/v(?<version>\d+\.\d+\.\d+)$
@@ -30,8 +29,9 @@ jobs:
                 if("${{ github.ref }}" -match "${{ env.REGEX_REF_VERSION }}")
                 {
                     echo "Find version information in 'github.ref': '${{ github.ref }}'"
+                    echo "IS_PRE_RELEASE=false" >> $GITHUB_ENV
                 } else {
-                    echo "The version information is not found in github.ref, try to get it from the '.csproj' file."
+                    echo "The version information is not found in 'github.ref': '${{ github.ref }}', try to get it from the '.csproj' file."
 
                     $versionXmlInCsproj = Select-String -Path ".\src\MyConsoleApp\MyConsoleApp.csproj" -Pattern "${{ env.REGEX_XML_VERSION }}" -Raw
                     if($versionXmlInCsproj -match "${{ env.REGEX_XML_VERSION }}")
@@ -44,7 +44,9 @@ jobs:
                     }
                 }
 
-                echo $matches.version >> APPLICATION_VERSION
+                echo "IS_PRE_RELEASE=true" >> $GITHUB_ENV
+                echo "APPLICATION_VERSION=$matches.version" >> $GITHUB_ENV
+                cat $GITHUB_ENV
 
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1
