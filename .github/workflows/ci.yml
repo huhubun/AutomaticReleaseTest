@@ -140,7 +140,9 @@ jobs:
         run: npm install -g conventional-changelog-cli
 
       - name: Generate changelog
-        run: conventional-changelog -i changelog.md -r
+        run: |
+          conventional-changelog -p angular -i changelog.md -s
+          cat changelog.md
 
       # 谁来创建 release 并不重要，如果 release 已经存在，那就跳过它
       - name: Create GitHub release by ${{ matrix.os }}
