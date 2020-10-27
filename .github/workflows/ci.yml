@@ -61,7 +61,7 @@ jobs:
           }
 
           echo "APPLICATION_VERSION=$application_version" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          
+
           Get-Content $env:GITHUB_ENV
 
       - name: Setup .NET Core
@@ -82,43 +82,76 @@ jobs:
         if: startsWith(matrix.os, 'windows-')
         run: dotnet publish -f ${{ env.NET_CORE_VERSION }} -o ./myapp_${{ env.APPLICATION_VERSION }}_windows --nologo
 
-      - name: Publish for Linux
-        if: startsWith(matrix.os, 'ubuntu-')
-        run: dotnet publish -f ${{ env.NET_CORE_VERSION }} -o ./myapp_${{ env.APPLICATION_VERSION }}_linux --nologo
-
-      - name: Publish for macOS
-        if: startsWith(matrix.os, 'macos-')
-        run: dotnet publish -f ${{ env.NET_CORE_VERSION }} -o ./myapp_${{ env.APPLICATION_VERSION }}_macos --nologo
-
       - name: Package for Windows
         if: startsWith(matrix.os, 'windows-')
         run: Compress-Archive -Path .\myapp_${{ env.APPLICATION_VERSION }}_windows 'myapp_${{ env.APPLICATION_VERSION }}_windows.zip'
-
-      - name: Package for Linux
-        if: startsWith(matrix.os, 'ubuntu-')
-        run: tar caf myapp_${{ env.APPLICATION_VERSION }}_linux.tar.gz myapp_${{ env.APPLICATION_VERSION }}_linux
-
-      - name: Package for macOS
-        if: startsWith(matrix.os, 'macos-')
-        run: tar caf myapp_${{ env.APPLICATION_VERSION }}_macos.tar.gz myapp_${{ env.APPLICATION_VERSION }}_macos
 
       - name: Upload MyApplication for Windows
         if: startsWith(matrix.os, 'windows-')
         uses: actions/upload-artifact@v2
         with:
           name: myapp_${{ env.APPLICATION_VERSION }}_windows
-          path: ./myapp_windows.zip
+          path: ./myapp_${{ env.APPLICATION_VERSION }}_windows.zip
+
+      - name: Upload MyApplication for Windows to release
+        if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') && startsWith(matrix.os, 'windows-') }}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.github_release.outputs.upload_url }}
+          asset_path: ./myapp_${{ env.APPLICATION_VERSION }}_windows.zip
+          asset_name: myapp_${{ env.APPLICATION_VERSION }}_windows.zip
+          asset_content_type: application/zip
+
+      - name: Publish for Linux
+        if: startsWith(matrix.os, 'ubuntu-')
+        run: dotnet publish -f ${{ env.NET_CORE_VERSION }} -o ./myapp_${{ env.APPLICATION_VERSION }}_linux --nologo
+
+      - name: Package for Linux
+        if: startsWith(matrix.os, 'ubuntu-')
+        run: tar caf myapp_${{ env.APPLICATION_VERSION }}_linux.tar.gz myapp_${{ env.APPLICATION_VERSION }}_linux
 
       - name: Upload MyApplication for Linux
         if: startsWith(matrix.os, 'ubuntu-')
         uses: actions/upload-artifact@v2
         with:
           name: myapp_${{ env.APPLICATION_VERSION }}_linux
-          path: ./myapp_linux.tar.gz
+          path: ./myapp_${{ env.APPLICATION_VERSION }}_linux.tar.gz
+
+      - name: Upload MyApplication for Linux to release
+        if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') && startsWith(matrix.os, 'ubuntu-') }}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.github_release.outputs.upload_url }}
+          asset_path: ./myapp_${{ env.APPLICATION_VERSION }}_linux.tar.gz
+          asset_name: myapp_${{ env.APPLICATION_VERSION }}_linux.tar.gz
+          asset_content_type: application/x-gzip
+
+      - name: Publish for macOS
+        if: startsWith(matrix.os, 'macos-')
+        run: dotnet publish -f ${{ env.NET_CORE_VERSION }} -o ./myapp_${{ env.APPLICATION_VERSION }}_macos --nologo
+
+      - name: Package for macOS
+        if: startsWith(matrix.os, 'macos-')
+        run: tar caf myapp_${{ env.APPLICATION_VERSION }}_macos.tar.gz myapp_${{ env.APPLICATION_VERSION }}_macos
 
       - name: Upload MyApplication for macOS
         if: startsWith(matrix.os, 'macos-')
         uses: actions/upload-artifact@v2
         with:
           name: myapp_${{ env.APPLICATION_VERSION }}_macos
-          path: ./myapp_macos.tar.gz
+          path: ./myapp_${{ env.APPLICATION_VERSION }}_macos.tar.gz
+
+      - name: Upload MyApplication for macOS to release
+        if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') && startsWith(matrix.os, 'macos-') }}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.github_release.outputs.upload_url }}
+          asset_path: ./myapp_${{ env.APPLICATION_VERSION }}_macos.tar.gz
+          asset_name: myapp_${{ env.APPLICATION_VERSION }}_macos.tar.gz
+          asset_content_type: application/x-gzip
