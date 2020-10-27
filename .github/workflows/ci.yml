@@ -3,6 +3,7 @@ name: My-Application-CI
 on: [push]
 
 env:
+  GITHUB_RELEASE_URL: https://uploads.github.com/repos/huhubun/AutomaticReleaseTest/releases
   DOTNET_SDK_VERSION: 3.1
   NET_CORE_VERSION: netcoreapp3.1
   REGEX_REF_VERSION: .*\/v(?<version>\d+\.\d+\.\d+)$
@@ -123,7 +124,9 @@ jobs:
           name: myapp_${{ env.APPLICATION_VERSION }}_macos
           path: ./myapp_${{ env.APPLICATION_VERSION }}_macos.tar.gz
 
-      - name: Create GitHub release
+      # 谁来创建 release 并不重要，如果 release 已经存在，那就跳过它
+      - name: Create GitHub release by ${{ matrix.os }}
+        continue-on-error: true
         id: github_release
         if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') }}
         uses: actions/create-release@v1
@@ -131,9 +134,44 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.ref }}
-          release_name: v${{ github.ref }} 🎉
+          release_name: v${{ env.APPLICATION_VERSION }} 🎉
           body: |
             My Application v${{ env.APPLICATION_VERSION }}
               - aaa
               - bbb
-          prerelease: true
+          prerelease: ${{ env.IS_PRE_RELEASE }}
+
+      - name: Upload MyApplication for Windows to release
+        if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') && startsWith(matrix.os, 'windows-') }}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          # 因为不确定 release 在哪个任务里被创建，所以不能使用 ${{ steps.github_release.outputs.upload_url }}
+          # 改为因而直接硬编码 URL，下同
+          upload_url: ${{ env.GITHUB_RELEASE_URL }}/v${{ env.APPLICATION_VERSION }}/assets
+          asset_path: ./myapp_${{ env.APPLICATION_VERSION }}_windows.zip
+          asset_name: myapp_${{ env.APPLICATION_VERSION }}_windows.zip
+          asset_content_type: application/zip
+
+      - name: Upload MyApplication for Linux to release
+        if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') && startsWith(matrix.os, 'ubuntu-') }}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ env.GITHUB_RELEASE_URL }}/v${{ env.APPLICATION_VERSION }}/assets
+          asset_path: ./myapp_${{ env.APPLICATION_VERSION }}_linux.tar.gz
+          asset_name: myapp_${{ env.APPLICATION_VERSION }}_linux.tar.gz
+          asset_content_type: application/gzip
+
+      - name: Upload MyApplication for macOS to release
+        if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') && startsWith(matrix.os, 'macos-') }}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ env.GITHUB_RELEASE_URL }}/v${{ env.APPLICATION_VERSION }}/assets
+          asset_path: ./myapp_${{ env.APPLICATION_VERSION }}_macos.tar.gz
+          asset_name: myapp_${{ env.APPLICATION_VERSION }}_macos.tar.gz
+          asset_content_type: application/gzip
