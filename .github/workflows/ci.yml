@@ -3,11 +3,12 @@ name: My-Application-CI
 on: [push]
 
 env:
-  GET_RELEASE_BY_TAG_NAME_URL: https://api.github.com/repos/huhubun/AutomaticReleaseTest/releases/tags
+  NODE_JS_VERSION: 12
   DOTNET_SDK_VERSION: 3.1
   NET_CORE_VERSION: netcoreapp3.1
   REGEX_REF_VERSION: .*\/v(?<version>\d+\.\d+\.\d+)$
   REGEX_XML_VERSION: <Version>(?<version>\d+.\d+.\d+)</Version>
+  GET_RELEASE_BY_TAG_NAME_URL: https://api.github.com/repos/huhubun/AutomaticReleaseTest/releases/tags
 
 jobs:
   main:
@@ -124,6 +125,23 @@ jobs:
           name: myapp_${{ env.APPLICATION_VERSION }}_macos
           path: ./myapp_${{ env.APPLICATION_VERSION }}_macos.tar.gz
 
+      - name: Setup Node.js with npm
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ env.NODE_JS_VERSION }}
+
+      - name: Verify Node.js
+        run: node -v
+
+      - name: Verify npm
+        run: npm -v
+
+      - name: Install npm package conventional-changelog-cli
+        run: npm install -g conventional-changelog-cli
+
+      - name: Generate changelog
+        run: conventional-changelog -i changelog.md -r
+
       # 谁来创建 release 并不重要，如果 release 已经存在，那就跳过它
       - name: Create GitHub release by ${{ matrix.os }}
         continue-on-error: true
@@ -135,10 +153,7 @@ jobs:
         with:
           tag_name: ${{ github.ref }}
           release_name: v${{ env.APPLICATION_VERSION }} 🎉
-          body: |
-            My Application v${{ env.APPLICATION_VERSION }}
-              - aaa
-              - bbb
+          body_path: changelog.md
           prerelease: ${{ env.IS_PRE_RELEASE }}
 
       - name: Get release upload url
