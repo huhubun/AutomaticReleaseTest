@@ -59,7 +59,7 @@ jobs:
 
           if(($ref_version -ne $null) -and ($csproj_version -ne $null) -and ($ref_version -ne $csproj_version))
           {
-            throw "The version number in 'github.ref' does not match the one in the '.csproj' file."
+            throw "The version number in 'github.ref'($ref_version) does not match the one in the '.csproj' file($csproj_version)."
           }
 
           echo "APPLICATION_VERSION=$application_version" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
