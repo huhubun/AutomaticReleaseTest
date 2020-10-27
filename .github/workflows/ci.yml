@@ -126,20 +126,25 @@ jobs:
           path: ./myapp_${{ env.APPLICATION_VERSION }}_macos.tar.gz
 
       - name: Setup Node.js with npm
+        if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') }}
         uses: actions/setup-node@v1
         with:
           node-version: ${{ env.NODE_JS_VERSION }}
 
       - name: Verify Node.js
+        if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') }}
         run: node -v
 
       - name: Verify npm
+        if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') }}
         run: npm -v
 
       - name: Install npm package conventional-changelog-cli
+        if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') }}
         run: npm install -g conventional-changelog-cli
 
       - name: Generate changelog
+        if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') }}
         run: |
           conventional-changelog -p angular -i changelog.md -s
           cat changelog.md
