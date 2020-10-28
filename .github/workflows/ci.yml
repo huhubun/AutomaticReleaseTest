@@ -130,6 +130,10 @@ jobs:
         shell: pwsh
         run: |
           $tags = git tag -l v*
+
+          Write-Output "tags:"
+          Write-Output $tags
+
           $current_tag_name = "v${{ env.APPLICATION_VERSION }}"
           $current_tag_index = $tags.IndexOf($current_tag_name)
           $git_logs_range = $current_tag_name
