@@ -84,7 +84,7 @@ jobs:
 
       - name: Publish for Windows
         if: startsWith(matrix.os, 'windows-')
-        run: dotnet publish -f ${{ env.NET_CORE_VERSION }} -o ./myapp_${{ env.APPLICATION_VERSION }}_windows --nologo
+        run: dotnet publish -f ${{ env.NET_CORE_VERSION }} -o ./myapp_${{ env.APPLICATION_VERSION }}_windows -c Release --no-self-contained --nologo
 
       - name: Package for Windows
         if: startsWith(matrix.os, 'windows-')
@@ -99,7 +99,7 @@ jobs:
 
       - name: Publish for Linux
         if: startsWith(matrix.os, 'ubuntu-')
-        run: dotnet publish -f ${{ env.NET_CORE_VERSION }} -o ./myapp_${{ env.APPLICATION_VERSION }}_linux --nologo
+        run: dotnet publish -f ${{ env.NET_CORE_VERSION }} -o ./myapp_${{ env.APPLICATION_VERSION }}_linux -c Release --no-self-contained --nologo
 
       - name: Package for Linux
         if: startsWith(matrix.os, 'ubuntu-')
@@ -114,7 +114,7 @@ jobs:
 
       - name: Publish for macOS
         if: startsWith(matrix.os, 'macos-')
-        run: dotnet publish -f ${{ env.NET_CORE_VERSION }} -o ./myapp_${{ env.APPLICATION_VERSION }}_macos --nologo
+        run: dotnet publish -f ${{ env.NET_CORE_VERSION }} -o ./myapp_${{ env.APPLICATION_VERSION }}_macos -c Release --no-self-contained --nologo
 
       - name: Package for macOS
         if: startsWith(matrix.os, 'macos-')
