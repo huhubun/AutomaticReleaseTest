@@ -6,7 +6,11 @@ namespace MyConsoleApp
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World 996!");
+            for(var i = 0; i < 10; i++)
+            {
+                Console.WriteLine("996!");
+            }
+            
             Console.WriteLine($"{DateTime.Now} 007!");
         }
     }
