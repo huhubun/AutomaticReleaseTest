@@ -134,14 +134,25 @@ jobs:
           $current_tag_index = $tags.IndexOf($current_tag_name)
           $git_logs_range = $current_tag_name
 
-          if($current_tag_index > 0)
+          if($current_tag_index -gt 0)
           {
             $last_tag_index = $current_tag_index - 1
             $last_tag_name = $tags[$last_tag_index]
             $git_logs_range = "$last_tag_name..$current_tag_name"
           }
 
-          git log --pretty="- [%h](https://github.com/huhubun/AutomaticReleaseTest/commit/%H) %s" $git_logs_range | Out-File -FilePath changelog.md -Encoding utf8
+          Write-Output "git_logs_range = $git_logs_range"
+
+          Write-Output "# MyApplication v${{ env.APPLICATION_VERSION }}" | Out-File -FilePath changelog.md -Encoding utf8
+           
+          $logs = git log --pretty="- [%h](https://github.com/huhubun/AutomaticReleaseTest/commit/%H) %s" $git_logs_range 
+
+          Write-Output "## Features" | Out-File -FilePath changelog.md -Encoding utf8 -Append
+          $logs | Where-Object {$_ -match "\bfeat\b:"} | Out-File -FilePath changelog.md -Encoding utf8 -Append
+
+          Write-Output "## Bug Fixes" | Out-File -FilePath changelog.md -Encoding utf8 -Append
+          $logs | Where-Object {$_ -match "\bfix\b):"} | Out-File -FilePath changelog.md -Encoding utf8 -Append
+
           cat changelog.md
 
       # 谁来创建 release 并不重要，如果 release 已经存在，那就跳过它
