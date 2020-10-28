@@ -151,7 +151,7 @@ jobs:
           $logs | Where-Object {$_ -match "\bfeat\b:"} | Out-File -FilePath changelog.md -Encoding utf8 -Append
 
           Write-Output "## Bug Fixes" | Out-File -FilePath changelog.md -Encoding utf8 -Append
-          $logs | Where-Object {$_ -match "\bfix\b):"} | Out-File -FilePath changelog.md -Encoding utf8 -Append
+          $logs | Where-Object {$_ -match "\bfix\b:"} | Out-File -FilePath changelog.md -Encoding utf8 -Append
 
           cat changelog.md
 
