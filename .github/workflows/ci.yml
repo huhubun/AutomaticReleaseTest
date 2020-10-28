@@ -125,28 +125,23 @@ jobs:
           name: myapp_${{ env.APPLICATION_VERSION }}_macos
           path: ./myapp_${{ env.APPLICATION_VERSION }}_macos.tar.gz
 
-      - name: Setup Node.js with npm
-        if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') }}
-        uses: actions/setup-node@v1
-        with:
-          node-version: ${{ env.NODE_JS_VERSION }}
-
-      - name: Verify Node.js
-        if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') }}
-        run: node -v
-
-      - name: Verify npm
-        if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') }}
-        run: npm -v
-
-      - name: Install npm package conventional-changelog-cli
-        if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') }}
-        run: npm install -g conventional-changelog-cli
-
       - name: Generate changelog
         if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') }}
+        shell: pwsh
         run: |
-          conventional-changelog -p angular -i changelog.md -s
+          $tags = git tag -l v*
+          $current_tag_name = "v${{ env.APPLICATION_VERSION }}"
+          $current_tag_index = $tags.IndexOf($current_tag_name)
+          $git_logs_range = $current_tag_name
+
+          if($current_tag_index > 0)
+          {
+            $last_tag_index = $current_tag_index - 1
+            $last_tag_name = $tags[$last_tag_index]
+            $git_logs_range = "$last_tag_name..$current_tag_name"
+          }
+
+          git log --pretty="- [%h](https://github.com/huhubun/AutomaticReleaseTest/commit/%H) %s" $git_logs_range | Out-File -FilePath changelog.md -Encoding utf8
           cat changelog.md
 
       # 谁来创建 release 并不重要，如果 release 已经存在，那就跳过它
