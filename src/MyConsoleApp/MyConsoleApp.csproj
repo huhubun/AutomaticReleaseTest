@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
+    <!-- UseAppHost 设为 true，使得即便是 macOS 也生成可执行文件，因为默认情况下 macOS 不生成可执行文件 https://docs.microsoft.com/zh-cn/dotnet/core/install/macos-notarization-issues -->
+    <UseAppHost>true</UseAppHost>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <Version>1.0.9</Version>
     <Version Condition=" '$(VersionSuffix)' != '' ">$(Version)-$(VersionSuffix)</Version>
